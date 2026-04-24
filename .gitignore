@@ -1,0 +1,26 @@
+# Environment variables
+.env
+
+# Invoices (PDFs)
+invoices/
+
+# JSON Invoices
+data/json/*.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.venv/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
