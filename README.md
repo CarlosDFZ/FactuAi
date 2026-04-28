@@ -25,6 +25,7 @@ FactuAI helps automate invoice processing for workflows that would otherwise req
 - Store processed invoice data in MySQL
 - Prevent duplicate invoices using UUID-based deduplication
 - Save processed JSON files locally in `data/json/`
+- Generate fake invoice PDFs for testing and demo workflows
 - Use environment variables for configuration with `.env`
 - Automatically create the database and invoices table if they do not exist
 
@@ -53,26 +54,43 @@ Dependencies can be installed manually with:
 pip install openai python-dotenv pymupdf mysql-connector-python
 ```
 
+If you want to generate demo invoice PDFs locally, install `reportlab` as well:
+
+```bash
+pip install reportlab
+```
+
 ## Project Structure
 
 ```text
 FactuAI/
-├── config.py
-├── db.py
-├── main.py
-├── setup_database.py
-├── .env.example
-├── .gitignore
-├── invoices/
-├── data/
-│   └── json/
-└── modules/
-    ├── __init__.py
-    ├── ai_extractor.py
-    ├── db_insert.py
-    ├── pdf_reader.py
-    └── uuid_extractor.py
+|-- config.py
+|-- db.py
+|-- generate_fake_invoices.py
+|-- main.py
+|-- setup_database.py
+|-- .env.example
+|-- .gitignore
+|-- invoices/
+|-- data/
+|   `-- json/
+`-- modules/
+    |-- __init__.py
+    |-- ai_extractor.py
+    |-- db_insert.py
+    |-- pdf_reader.py
+    `-- uuid_extractor.py
 ```
+
+Recommended repository structure for public sharing:
+
+```text
+FactuAI/
+|-- invoices/
+|   `-- .gitkeep
+```
+
+The `.gitkeep` file is used so the empty `invoices/` folder stays visible in GitHub.
 
 ## Installation
 
@@ -107,6 +125,12 @@ source venv/bin/activate
 
 ```bash
 pip install openai python-dotenv pymupdf mysql-connector-python
+```
+
+If you also want to generate demo invoices:
+
+```bash
+pip install reportlab
 ```
 
 ## Environment Setup
@@ -146,6 +170,44 @@ python main.py
 - UUIDs are checked to prevent duplicates
 - Extracted JSON files are saved to `data/json/`
 - Valid invoice data is inserted into MySQL
+
+## Test Data Generator
+
+The project includes a Python script named `generate_fake_invoices.py`.
+
+This script automatically generates fake invoice PDF files for demo and testing purposes. Each sample invoice includes fields such as:
+
+- UUID
+- invoice date
+- supplier
+- description
+- subtotal
+- taxes
+- total
+- currency
+- category
+
+### Usage
+
+```bash
+pip install reportlab
+python generate_fake_invoices.py
+```
+
+Generated PDFs are saved inside:
+
+```text
+invoices/
+```
+
+Important: the generated PDFs are only for testing, development, and dashboard demonstrations. If you want to process real invoices, you must manually place your own PDF files inside the `invoices/` folder.
+
+## Invoices Folder Behavior
+
+- The `invoices/` folder is included in the repository structure
+- Real invoice files are excluded from Git tracking using `.gitignore`
+- This helps avoid uploading sensitive business data
+- The folder remains available so users know exactly where to place PDF files
 
 ## Database Schema
 
@@ -199,6 +261,8 @@ All invoices processed.
 ## Notes
 
 - The project expects PDF invoices inside the `invoices/` directory
+- Fake PDFs can be generated with `generate_fake_invoices.py` for testing and demos
+- Real invoice PDFs must be added manually to `invoices/` for real processing
 - Processed JSON files are stored in `data/json/`
 - Duplicate invoices are skipped when the UUID already exists in the database
 - If required fields are missing, the invoice is skipped
@@ -208,13 +272,13 @@ All invoices processed.
 This repository is configured to exclude local and generated files from version control, including:
 
 - `.env`
-- `invoices/`
+- `invoices/*.pdf`
 - `data/json/*.json`
 - virtual environments
 - Python cache files
 - VS Code settings
 
-This keeps sensitive data, raw invoice files, and generated JSON outputs out of GitHub. No real API keys, passwords, invoice data, or other sensitive information should be committed.
+This keeps sensitive data, raw invoice files, and generated JSON outputs out of GitHub while still keeping the `invoices/` folder available in the repository structure. No real API keys, passwords, invoice data, or other sensitive information should be committed.
 
 ## Future Improvements
 

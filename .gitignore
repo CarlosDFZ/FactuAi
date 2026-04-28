@@ -2,7 +2,8 @@
 .env
 
 # Invoices (PDFs)
-invoices/
+invoices/*.pdf
+!invoices/.gitkeep
 
 # JSON Invoices
 data/json/*.json
