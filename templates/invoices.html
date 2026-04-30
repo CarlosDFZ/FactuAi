@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Invoices History</h1>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>UUID</th>
+        <th>Date</th>
+        <th>Supplier</th>
+        <th>Total</th>
+        <th>Category</th>
+    </tr>
+
+    {% for row in invoices %}
+    <tr>
+        <td>{{ row.id }}</td>
+        <td>{{ row.uuid }}</td>
+        <td>{{ row.invoice_date }}</td>
+        <td>{{ row.supplier }}</td>
+        <td>{{ row.total }}</td>
+        <td>{{ row.category }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
