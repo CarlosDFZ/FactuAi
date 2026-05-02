@@ -9,10 +9,21 @@
     <a href="/">Home</a> |
     <a href="/upload">Upload</a> |
     <a href="/process">Process</a> |
-    <a href="/invoices">Invoices</a>
+    <a href="/invoices">Invoices</a> |
+    <a href="/files">Files</a>
 </nav>
 
 <hr>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding:10px; background:#d4edda; color:#155724; margin-bottom:15px; border:1px solid #c3e6cb;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
 {% block content %}{% endblock %}
 

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Upload Invoice PDF</h1>
+<h1>Upload Invoice PDFs</h1>
 
 <form method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".pdf">
+    <input type="file" name="files" accept=".pdf" multiple>
     <button type="submit">Upload</button>
 </form>
+
 {% endblock %}

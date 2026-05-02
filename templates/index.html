@@ -4,6 +4,47 @@
 <h1>FactuAI</h1>
 <p>AI-powered invoice processing system.</p>
 
+<h2>Dashboard Summary</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Total Invoices</th>
+        <td>{{ stats.total_invoices }}</td>
+    </tr>
+    <tr>
+        <th>Total Expenses</th>
+        <td>${{ stats.total_expenses }}</td>
+    </tr>
+    <tr>
+        <th>Average Invoice</th>
+        <td>${{ stats.average_invoice }}</td>
+    </tr>
+    <tr>
+        <th>Total Taxes</th>
+        <td>${{ stats.total_taxes }}</td>
+    </tr>
+</table>
+
+<br>
+
+<h2>Top Categories</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Category</th>
+        <th>Invoices</th>
+    </tr>
+
+    {% for item in categories %}
+    <tr>
+        <td>{{ item.category }}</td>
+        <td>{{ item.qty }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+
 <ul>
     <li><a href="/upload">Upload invoice PDFs</a></li>
     <li><a href="/process">Process invoices with AI</a></li>
