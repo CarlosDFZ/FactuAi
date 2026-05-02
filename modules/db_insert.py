@@ -1,4 +1,5 @@
 from db import get_connection
+import mysql.connector
 
 def invoice_exists(uuid):
     if not uuid:
@@ -8,12 +9,12 @@ def invoice_exists(uuid):
     cursor = connection.cursor()
 
     query = "SELECT id FROM invoices WHERE uuid = %s LIMIT 1"
-    cursor.execute(query, (uuid,))
-
-    result = cursor.fetchone()
-
-    cursor.close()
-    connection.close()
+    try:
+        cursor.execute(query, (uuid,))
+        result = cursor.fetchone()
+    finally:
+        cursor.close()
+        connection.close()
 
     return result is not None
 
@@ -44,12 +45,9 @@ def insert_invoice(data, pdf_path):
         cursor.execute(query, values)
         connection.commit()
         print("Saved to database")
-
-    except Exception as e:
-        if "Duplicate entry" in str(e):
-            print("Duplicate invoice detected")
-        else:
-            print("Database error:", e)
-
-    cursor.close()
-    connection.close()
+    except mysql.connector.Error:
+        connection.rollback()
+        raise
+    finally:
+        cursor.close()
+        connection.close()
