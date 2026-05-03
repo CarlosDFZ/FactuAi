@@ -1,53 +1,190 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>FactuAI</h1>
-<p>AI-powered invoice processing system.</p>
 
-<h2>Dashboard Summary</h2>
+<!-- Page Header -->
+<div class="factu-section-header" style="margin-bottom: 28px;">
+    <div>
+        <h1 class="factu-section-title">Dashboard</h1>
+        <p class="factu-section-sub">Overview of your invoice processing activity</p>
+    </div>
+</div>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Total Invoices</th>
-        <td>{{ stats.total_invoices }}</td>
-    </tr>
-    <tr>
-        <th>Total Expenses</th>
-        <td>${{ stats.total_expenses }}</td>
-    </tr>
-    <tr>
-        <th>Average Invoice</th>
-        <td>${{ stats.average_invoice }}</td>
-    </tr>
-    <tr>
-        <th>Total Taxes</th>
-        <td>${{ stats.total_taxes }}</td>
-    </tr>
-</table>
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="factu-stat-card">
+            <div class="factu-stat-icon indigo">
+                <i class="bi bi-receipt-cutoff"></i>
+            </div>
+            <div class="factu-stat-label">Total Invoices</div>
+            <div class="factu-stat-value">{{ stats.total_invoices if stats else '—' }}</div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="factu-stat-card">
+            <div class="factu-stat-icon blue">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="factu-stat-label">Total Expenses</div>
+            <div class="factu-stat-value">
+                {% if stats %}
+                    ${{ "{:,.2f}".format(stats.total_expenses | float) }}
+                {% else %}—{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="factu-stat-card">
+            <div class="factu-stat-icon green">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="factu-stat-label">Average Invoice</div>
+            <div class="factu-stat-value">
+                {% if stats %}
+                    ${{ "{:,.2f}".format(stats.average_invoice | float) }}
+                {% else %}—{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="factu-stat-card">
+            <div class="factu-stat-icon amber">
+                <i class="bi bi-percent"></i>
+            </div>
+            <div class="factu-stat-label">Total Taxes</div>
+            <div class="factu-stat-value">
+                {% if stats %}
+                    ${{ "{:,.2f}".format(stats.total_taxes | float) }}
+                {% else %}—{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-<br>
+<!-- Bottom Section: Categories + Quick Actions -->
+<div class="row g-3">
 
-<h2>Top Categories</h2>
+    <!-- Top Categories -->
+    <div class="col-12 col-lg-6">
+        <div class="factu-card" style="height: 100%;">
+            <div class="factu-card-header">
+                <h2 class="factu-card-title">
+                    <i class="bi bi-tag me-2" style="color: var(--color-primary-light);"></i>
+                    Top Categories
+                </h2>
+                <a href="/invoices" class="factu-btn factu-btn-ghost factu-btn-sm">
+                    View all <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Category</th>
-        <th>Invoices</th>
-    </tr>
+            {% if categories %}
+            <div class="factu-table-wrapper" style="box-shadow: none; border-radius: var(--radius-md);">
+                <table class="factu-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Invoices</th>
+                            <th>Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in categories %}
+                        <tr>
+                            <td style="color: var(--color-text-light); font-size: 12px; font-weight: 600; width: 32px;">
+                                {{ loop.index }}
+                            </td>
+                            <td>
+                                <span class="factu-badge factu-badge-indigo">{{ item.category or 'Uncategorized' }}</span>
+                            </td>
+                            <td style="font-weight: 600;">{{ item.qty }}</td>
+                            <td style="width: 120px;">
+                                {% if stats and stats.total_invoices and stats.total_invoices > 0 %}
+                                    {% set pct = (item.qty / stats.total_invoices * 100) | round(1) %}
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="flex: 1; height: 5px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                            <div style="height: 100%; --pct: {{ pct }}%; width: var(--pct); background: linear-gradient(90deg, var(--color-primary-light), var(--color-secondary)); border-radius: 10px;"></div>
+                                        </div>
+                                        <span style="font-size: 11px; color: var(--color-text-muted); min-width: 32px; text-align: right;">{{ pct }}%</span>
+                                    </div>
+                                {% else %}
+                                    <span style="color: var(--color-text-light); font-size: 12px;">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 40px 20px; color: var(--color-text-muted);">
+                <i class="bi bi-inbox" style="font-size: 36px; display: block; margin-bottom: 12px; color: var(--color-text-light);"></i>
+                <div style="font-size: 14px; font-weight: 500;">No invoice data yet</div>
+                <div style="font-size: 13px; margin-top: 4px;">Upload and process invoices to see categories here.</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 
-    {% for item in categories %}
-    <tr>
-        <td>{{ item.category }}</td>
-        <td>{{ item.qty }}</td>
-    </tr>
-    {% endfor %}
-</table>
+    <!-- Quick Actions -->
+    <div class="col-12 col-lg-6">
+        <div class="factu-card" style="height: 100%;">
+            <div class="factu-card-header">
+                <h2 class="factu-card-title">
+                    <i class="bi bi-lightning-charge me-2" style="color: var(--color-primary-light);"></i>
+                    Quick Actions
+                </h2>
+            </div>
 
-<br>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <a href="/upload" class="factu-action-card">
+                    <div class="factu-action-icon" style="background: #eff6ff; color: #2563eb;">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <div class="factu-action-label">Upload Invoices</div>
+                        <div class="factu-action-desc">Add new PDF invoice files for processing</div>
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto" style="color: var(--color-text-light); font-size: 13px;"></i>
+                </a>
 
-<ul>
-    <li><a href="/upload">Upload invoice PDFs</a></li>
-    <li><a href="/process">Process invoices with AI</a></li>
-    <li><a href="/invoices">View processed invoices</a></li>
-</ul>
+                <a href="/files" class="factu-action-card">
+                    <div class="factu-action-icon" style="background: #fef9ee; color: #d97706;">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    <div>
+                        <div class="factu-action-label">View Files</div>
+                        <div class="factu-action-desc">Browse uploaded PDFs and process individually</div>
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto" style="color: var(--color-text-light); font-size: 13px;"></i>
+                </a>
+
+                <a href="/process" class="factu-action-card">
+                    <div class="factu-action-icon" style="background: var(--color-success-bg); color: var(--color-success);">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div>
+                        <div class="factu-action-label">Process All</div>
+                        <div class="factu-action-desc">Run AI extraction on all pending invoices</div>
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto" style="color: var(--color-text-light); font-size: 13px;"></i>
+                </a>
+
+                <a href="/invoices" class="factu-action-card">
+                    <div class="factu-action-icon">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="factu-action-label">View Invoices</div>
+                        <div class="factu-action-desc">Search, browse, and export processed records</div>
+                    </div>
+                    <i class="bi bi-chevron-right ms-auto" style="color: var(--color-text-light); font-size: 13px;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}

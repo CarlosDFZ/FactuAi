@@ -1,31 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>FactuAI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactuAI — Intelligent Invoice Processing</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<nav>
-    <a href="/">Home</a> |
-    <a href="/upload">Upload</a> |
-    <a href="/process">Process</a> |
-    <a href="/invoices">Invoices</a> |
-    <a href="/files">Files</a>
-</nav>
+<!-- Sidebar -->
+<div class="factu-sidebar">
+    <div class="factu-brand">
+        <div class="factu-brand-icon">
+            <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+        <div class="factu-brand-text">
+            <span class="factu-brand-name">FactuAI</span>
+            <span class="factu-brand-tagline">Invoice Intelligence</span>
+        </div>
+    </div>
 
-<hr>
+    <nav class="factu-nav">
+        <span class="factu-nav-label">MAIN MENU</span>
+        <ul>
+            <li>
+                <a href="/" class="factu-nav-link {% if request.path == '/' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/upload" class="factu-nav-link {% if request.path == '/upload' %}active{% endif %}">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span>Upload</span>
+                </a>
+            </li>
+            <li>
+                <a href="/files" class="factu-nav-link {% if request.path == '/files' %}active{% endif %}">
+                    <i class="bi bi-folder2-open"></i>
+                    <span>Files</span>
+                </a>
+            </li>
+            <li>
+                <a href="/process" class="factu-nav-link {% if request.path == '/process' %}active{% endif %}">
+                    <i class="bi bi-cpu"></i>
+                    <span>Process All</span>
+                </a>
+            </li>
+            <li>
+                <a href="/invoices" class="factu-nav-link {% if '/invoices' in request.path %}active{% endif %}">
+                    <i class="bi bi-receipt"></i>
+                    <span>Invoices</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding:10px; background:#d4edda; color:#155724; margin-bottom:15px; border:1px solid #c3e6cb;">
-                {{ message }}
+    <div class="factu-sidebar-footer">
+        <div class="factu-ai-badge">
+            <i class="bi bi-stars"></i>
+            <span>AI Powered</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Area -->
+<div class="factu-main">
+
+    <!-- Top Bar -->
+    <header class="factu-topbar">
+        <div class="factu-topbar-left">
+            <button class="factu-sidebar-toggle d-lg-none" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="factu-page-title" id="pageTitle">Dashboard</div>
+        </div>
+        <div class="factu-topbar-right">
+            <div class="factu-status-pill">
+                <span class="factu-status-dot"></span>
+                System Online
             </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+        </div>
+    </header>
 
-{% block content %}{% endblock %}
+    <!-- Flash Messages -->
+    <div class="factu-alerts-wrapper">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="factu-alert alert alert-dismissible fade show" role="alert">
+                        <div class="factu-alert-icon">
+                            {% if 'error' in message.lower() or 'failed' in message.lower() or 'not found' in message.lower() %}
+                                <i class="bi bi-exclamation-circle-fill text-danger"></i>
+                            {% elif 'skip' in message.lower() or 'duplicate' in message.lower() or 'warning' in message.lower() %}
+                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                            {% else %}
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            {% endif %}
+                        </div>
+                        <span>{{ message }}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Page Content -->
+    <main class="factu-content">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="factu-overlay" id="sidebarOverlay"></div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Mobile sidebar toggle
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.factu-sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        });
+    }
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    }
+
+    // Set active page title in topbar
+    const navLinks = document.querySelectorAll('.factu-nav-link');
+    const pageTitle = document.getElementById('pageTitle');
+    navLinks.forEach(link => {
+        if (link.classList.contains('active') && pageTitle) {
+            pageTitle.textContent = link.querySelector('span').textContent;
+        }
+    });
+</script>
 
 </body>
 </html>

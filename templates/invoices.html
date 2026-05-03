@@ -1,44 +1,163 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Invoices History</h1>
 
-<form method="GET">
+<!-- Page Header -->
+<div class="factu-section-header" style="margin-bottom: 28px;">
+    <div>
+        <h1 class="factu-section-title">Invoice History</h1>
+        <p class="factu-section-sub">Browse, search, and export all processed invoice records</p>
+    </div>
+    <a href="/export/csv" class="factu-btn factu-btn-ghost">
+        <i class="bi bi-download"></i>
+        Export CSV
+    </a>
+</div>
 
-    <input type="text" name="search" placeholder="Search..." value="{{ search }}">
+<!-- Search Bar -->
+<div style="margin-bottom: 20px;">
+    <form method="GET" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div class="factu-search" style="max-width: 380px; flex: 1;">
+            <i class="bi bi-search"></i>
+            <input
+                type="text"
+                name="search"
+                placeholder="Search by supplier, category, or UUID…"
+                value="{{ search }}"
+                autocomplete="off"
+            >
+        </div>
+        <button type="submit" class="factu-btn factu-btn-primary">
+            <i class="bi bi-search"></i>
+            Search
+        </button>
+        {% if search %}
+        <a href="/invoices" class="factu-btn factu-btn-ghost">
+            <i class="bi bi-x-circle"></i>
+            Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
 
-    <button type="submit">Search</button>
+<!-- Results count -->
+{% if search %}
+<div style="margin-bottom: 14px; font-size: 13px; color: var(--color-text-muted);">
+    <i class="bi bi-filter me-1"></i>
+    {% if invoices %}
+        {{ invoices | length }} result{{ 's' if invoices | length != 1 else '' }} for
+        <strong style="color: var(--color-text);">"{{ search }}"</strong>
+    {% else %}
+        No results for <strong style="color: var(--color-text);">"{{ search }}"</strong>
+    {% endif %}
+</div>
+{% endif %}
 
-</form>
+<!-- Invoices Table -->
+{% if invoices %}
+<div class="factu-table-wrapper">
+    <table class="factu-table">
+        <thead>
+            <tr>
+                <th style="width: 40px;">#</th>
+                <th>UUID</th>
+                <th>Date</th>
+                <th>Supplier</th>
+                <th>Total</th>
+                <th>Category</th>
+                <th style="text-align: right; width: 80px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in invoices %}
+            <tr>
+                <td style="color: var(--color-text-light); font-size: 12px; font-weight: 600;">
+                    {{ loop.index }}
+                </td>
+                <td>
+                    <span class="factu-uuid" title="{{ row.uuid }}">{{ row.uuid }}</span>
+                </td>
+                <td style="white-space: nowrap; font-size: 13.5px;">
+                    <i class="bi bi-calendar3 me-1" style="color: var(--color-text-light); font-size: 12px;"></i>
+                    {{ row.invoice_date }}
+                </td>
+                <td style="font-weight: 600; font-size: 14px;">
+                    {{ row.supplier | title if row.supplier else '—' }}
+                </td>
+                <td style="white-space: nowrap;">
+                    <span style="font-weight: 700; font-size: 14px; color: var(--color-success); font-variant-numeric: tabular-nums;">
+                        ${{ "{:,.2f}".format(row.total | float) if row.total else '—' }}
+                    </span>
+                </td>
+                <td>
+                    {% if row.category %}
+                        <span class="factu-badge factu-badge-indigo">{{ row.category }}</span>
+                    {% else %}
+                        <span style="color: var(--color-text-light); font-size: 13px;">—</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: right;">
+                    <a href="/invoice/{{ row.id }}" class="factu-btn factu-btn-outline factu-btn-sm">
+                        <i class="bi bi-eye"></i>
+                        View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<br>
+<!-- Footer row -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 10px;">
+    <span style="font-size: 13px; color: var(--color-text-muted);">
+        Showing {{ invoices | length }} invoice{{ 's' if invoices | length != 1 else '' }}
+    </span>
+    <a href="/export/csv" class="factu-btn factu-btn-ghost factu-btn-sm">
+        <i class="bi bi-filetype-csv"></i>
+        Export CSV
+    </a>
+</div>
 
-<a href="/export/csv">Export CSV</a>
-<br><br>
+{% else %}
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>#</th>
-        <th>UUID</th>
-        <th>Date</th>
-        <th>Supplier</th>
-        <th>Total</th>
-        <th>Category</th>
-        <th>Action</th>
-    </tr>
+<!-- Empty State -->
+<div class="factu-card" style="text-align: center; padding: 64px 32px;">
+    <div style="width: 72px; height: 72px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        {% if search %}
+            <i class="bi bi-search" style="font-size: 32px; color: var(--color-text-light);"></i>
+        {% else %}
+            <i class="bi bi-receipt" style="font-size: 32px; color: var(--color-text-light);"></i>
+        {% endif %}
+    </div>
 
-    {% for row in invoices %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ row.uuid }}</td>
-        <td>{{ row.invoice_date }}</td>
-        <td>{{ row.supplier }}</td>
-        <td>{{ row.total }}</td>
-        <td>{{ row.category }}</td>
-        <td>
-            <a href="/invoice/{{ row.id }}">View</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+    {% if search %}
+        <div style="font-size: 17px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">No invoices found</div>
+        <div style="font-size: 14px; color: var(--color-text-muted); max-width: 340px; margin: 0 auto 28px;">
+            No records matched <strong>"{{ search }}"</strong>. Try a different supplier, category, or UUID.
+        </div>
+        <a href="/invoices" class="factu-btn factu-btn-ghost">
+            <i class="bi bi-x-circle"></i>
+            Clear Search
+        </a>
+    {% else %}
+        <div style="font-size: 17px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">No invoices yet</div>
+        <div style="font-size: 14px; color: var(--color-text-muted); max-width: 340px; margin: 0 auto 28px;">
+            Upload PDF invoices and process them with AI to populate this list.
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <a href="/upload" class="factu-btn factu-btn-primary">
+                <i class="bi bi-cloud-arrow-up"></i>
+                Upload Invoices
+            </a>
+            <a href="/process" class="factu-btn factu-btn-ghost">
+                <i class="bi bi-cpu"></i>
+                Process All
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endif %}
+
 {% endblock %}

@@ -1,24 +1,105 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Uploaded PDF Files</h1>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>#</th>
-        <th>Filename</th>
-        <th>Action</th>
-    </tr>
+<!-- Page Header -->
+<div class="factu-section-header" style="margin-bottom: 28px;">
+    <div>
+        <h1 class="factu-section-title">Uploaded Files</h1>
+        <p class="factu-section-sub">Manage and process your PDF invoice files</p>
+    </div>
+    <a href="/upload" class="factu-btn factu-btn-primary">
+        <i class="bi bi-cloud-arrow-up"></i>
+        Upload More
+    </a>
+</div>
 
-    {% for file in files %}
-    <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ file }}</td>
-        <td>
-            <a href="/process/{{ file }}">Process</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<!-- File Count Badge -->
+{% if files %}
+<div style="margin-bottom: 20px;">
+    <span style="font-size: 13px; color: var(--color-text-muted);">
+        <i class="bi bi-folder2-open me-1"></i>
+        {{ files | length }} PDF file{{ 's' if files | length != 1 else '' }} found in <code style="font-family: var(--font-mono); font-size: 12px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">invoices/</code>
+    </span>
+</div>
+{% endif %}
+
+<!-- Files Table -->
+{% if files %}
+<div class="factu-table-wrapper">
+    <table class="factu-table">
+        <thead>
+            <tr>
+                <th style="width: 48px;">#</th>
+                <th>Filename</th>
+                <th style="width: 160px; text-align: right;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr>
+                <td style="color: var(--color-text-light); font-size: 12px; font-weight: 600;">
+                    {{ loop.index }}
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 34px; height: 34px; background: #fef2f2; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-file-earmark-pdf-fill" style="color: #dc2626; font-size: 17px;"></i>
+                        </div>
+                        <span class="factu-file-pill">{{ file }}</span>
+                    </div>
+                </td>
+                <td style="text-align: right;">
+                    <a href="/process/{{ file }}" class="factu-btn factu-btn-success factu-btn-sm"
+                       onclick="return confirm('Process {{ file }} with AI?')">
+                        <i class="bi bi-cpu"></i>
+                        Process
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Process All CTA -->
+<div class="factu-card" style="margin-top: 20px; background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%); border: none;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; background: rgba(255,255,255,0.12); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; flex-shrink: 0;">
+                <i class="bi bi-stars"></i>
+            </div>
+            <div>
+                <div style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px;">Process All at Once</div>
+                <div style="font-size: 12.5px; color: rgba(255,255,255,0.55);">
+                    Run AI extraction on all {{ files | length }} file{{ 's' if files | length != 1 else '' }} in a single batch
+                </div>
+            </div>
+        </div>
+        <a href="/process" class="factu-btn" style="background: #fff; color: var(--color-primary); font-weight: 700; flex-shrink: 0;">
+            <i class="bi bi-cpu"></i>
+            Process All
+        </a>
+    </div>
+</div>
+
+{% else %}
+
+<!-- Empty State -->
+<div class="factu-card" style="text-align: center; padding: 64px 32px;">
+    <div style="width: 72px; height: 72px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        <i class="bi bi-folder2-open" style="font-size: 32px; color: var(--color-text-light);"></i>
+    </div>
+    <div style="font-size: 17px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">No PDF files found</div>
+    <div style="font-size: 14px; color: var(--color-text-muted); max-width: 340px; margin: 0 auto 28px;">
+        The <code style="font-family: var(--font-mono); font-size: 12px; background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">invoices/</code> folder is empty. Upload PDF invoices to get started.
+    </div>
+    <a href="/upload" class="factu-btn factu-btn-primary">
+        <i class="bi bi-cloud-arrow-up"></i>
+        Upload Invoices
+    </a>
+</div>
+
+{% endif %}
 
 {% endblock %}
