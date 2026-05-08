@@ -408,4 +408,9 @@ def process_single_invoice(filename):
     return redirect(url_for("files"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    print("\nFactuAI is running:")
+    print("Local:   http://127.0.0.1:5000")
+    print("Network: http://localhost:5000")
+    print("Press CTRL+C to stop.\n")
+
+    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
